@@ -71,12 +71,22 @@ async function run() {
         })
 
 
-        // get order 
+        // GET order 
         app.get('/order', async (req, res) => {
             const orderCursor = orderCollection.find({});
             const orders = await orderCursor.toArray();
             res.send(orders);
         })
+
+
+        // DELETE Order user
+        app.delete('/order/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await orderCollection.deleteOne(query);
+            res.json(result)
+        })
+
 
 
     } finally {
