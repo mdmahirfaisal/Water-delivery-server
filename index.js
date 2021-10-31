@@ -27,7 +27,6 @@ async function run() {
         const database = client.db("water_delivery");
         const serviceCollection = database.collection("service");
         const orderCollection = database.collection("order");
-        const orderStatusCollection = database.collection("orderStatus");
 
         // GET All service API 
         app.get('/services', async (req, res) => {
@@ -78,30 +77,19 @@ async function run() {
         })
 
         // UPDATE a single Order
-        // app.put('/order/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const updatedOrders = req.body;
-        //     const filter = { _Id: ObjectId(id) };
-        //     const options = { upsert: true };
-        //     const updateDoc = {
-        //         $set: {
-        //             status: updatedOrders.status
-        //         },
-        //     };
-        //     const result = await orderCollection.updateOne(filter, updateDoc, options)
+        app.put('/order/:id', async (req, res) => {
+            const id = req.params.id;
+            const updatedOrders = req.body;
+            const filter = { _Id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    status: updatedOrders.status
+                },
+            };
+            const result = await orderCollection.updateOne(filter, updateDoc, options)
 
-        //     res.json(result);
-        // })
-
-        app.patch('/updateOrderStatus', (req, res) => {
-            const { id, status } = req.body;
-            console.log(req.body);
-            orderStatusCollection.findOneAndUpdate(
-                { _id: ObjectId(id) },
-                {
-                    $set: { status },
-                }
-            ).then(result => res.send(result.lastErrorObject.updatedExisting))
+            res.json(result);
         })
 
 
@@ -112,8 +100,6 @@ async function run() {
             const result = await orderCollection.deleteOne(query);
             res.json(result)
         })
-
-
 
     } finally {
         //   await client.close();
