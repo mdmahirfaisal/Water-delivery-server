@@ -1,5 +1,8 @@
 const express = require('express');
 const { MongoClient } = require('mongodb');
+const ObjectId = require('mongodb').ObjectId;
+
+
 const cors = require('cors');
 require('dotenv').config();
 
@@ -23,6 +26,7 @@ async function run() {
         await client.connect();
         const database = client.db("water_delivery");
         const serviceCollection = database.collection("service");
+        const orderCollection = database.collection("order");
 
         // GET All service API 
         app.get('/services', async (req, res) => {
@@ -30,6 +34,17 @@ async function run() {
             const services = await cursor.toArray();
             res.send(services);
         })
+
+
+        // GET single service API
+        app.get('/services/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const service = await serviceCollection.findOne(query);
+            console.log('Load service', id);
+            res.send(service)
+        })
+
 
 
         // POST API create and insert
@@ -40,7 +55,27 @@ async function run() {
             const result = await serviceCollection.insertOne(service);
             // console.log(result);
             res.json(result);
+        });
 
+
+
+        // add order
+        app.post('/order', async (req, res) => {
+            const newOrder = req.body;
+            console.log('newOrder', newOrder);
+            orderCollection.insertOne(newOrder)
+                .then(result => {
+                    // console.log(result.insertedCount > 0);
+                    res.send(result.insertedCount > 0);
+                })
+        })
+
+
+        // get order 
+        app.get('/order', async (req, res) => {
+            const orderCursor = orderCollection.find({});
+            const orders = await orderCursor.toArray();
+            res.send(orders);
         })
 
 
