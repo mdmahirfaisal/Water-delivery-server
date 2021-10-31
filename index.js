@@ -65,17 +65,31 @@ async function run() {
             console.log('newOrder', newOrder);
             orderCollection.insertOne(newOrder)
                 .then(result => {
-                    // console.log(result.insertedCount > 0);
                     res.send(result.insertedCount > 0);
                 })
         })
-
 
         // GET order 
         app.get('/order', async (req, res) => {
             const orderCursor = orderCollection.find({});
             const orders = await orderCursor.toArray();
             res.send(orders);
+        })
+
+        // UPDATE a single Order
+        app.put('/order/:id', async (req, res) => {
+            const id = req.params.id;
+            const updatedOrders = req.body;
+            const filter = { _Id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    status: updatedOrders.status
+                },
+            };
+            const result = await orderCollection.updateOne(filter, updateDoc, options)
+
+            res.json(result);
         })
 
 
